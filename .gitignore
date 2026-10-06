@@ -4,4 +4,4 @@ obj/
 .idea/
 .vs/
 *.DotSettings.user
-screenshots/
+/screenshots/
