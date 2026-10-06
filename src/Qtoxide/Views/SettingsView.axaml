@@ -1,0 +1,74 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Qtoxide.ViewModels"
+             x:Class="Qtoxide.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+    <Border Classes="card" Width="640" MaxHeight="660" Padding="0">
+        <DockPanel>
+            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="24,20,16,8">
+                <TextBlock Classes="title" Text="Settings" />
+                <Button Grid.Column="1" Classes="icon" Content="✕" Command="{Binding CloseCommand}" IsCancel="True" />
+            </Grid>
+            <TextBlock DockPanel.Dock="Bottom" Margin="24,8,24,16" Text="{Binding Message}" TextWrapping="Wrap"
+                       Foreground="{StaticResource AccentBrush}"
+                       IsVisible="{Binding Message, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="6" Margin="24,0,24,8">
+
+                    <TextBlock Classes="section" Text="Your Tox ID" />
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="8">
+                            <SelectableTextBlock Text="{Binding Main.ToxId}" FontFamily="monospace" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="Copy" Command="{Binding Main.CopyToxIdCommand}" />
+                                <Button Content="New nospam" Command="{Binding NewNoSpamCommand}"
+                                        ToolTip.Tip="Generates a new Tox ID; requests sent to the old one are ignored." />
+                            </StackPanel>
+                        </StackPanel>
+                        <Image Grid.Column="1" Source="{Binding QrCode}" Width="150" Height="150" Margin="16,0,0,0" />
+                    </Grid>
+
+                    <TextBlock Classes="section" Text="Avatar" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="Choose image…" Command="{Binding ChangeAvatarCommand}" />
+                        <Button Content="Remove" Command="{Binding RemoveAvatarCommand}" />
+                    </StackPanel>
+
+                    <TextBlock Classes="section" Text="Password" />
+                    <TextBlock Classes="muted" TextWrapping="Wrap"
+                               Text="The password encrypts your profile and chat history (qTox-compatible). Leave both fields empty to remove it." />
+                    <TextBox PasswordChar="●" Watermark="New password" Text="{Binding NewPassword}" />
+                    <TextBox PasswordChar="●" Watermark="Repeat new password" Text="{Binding NewPasswordConfirm}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="Change password" Command="{Binding ChangePasswordCommand}" />
+                        <ProgressBar IsIndeterminate="True" Width="100" IsVisible="{Binding IsBusy}" />
+                    </StackPanel>
+
+                    <TextBlock Classes="section" Text="Privacy and notifications" />
+                    <CheckBox Content="Desktop notifications for messages and requests" IsChecked="{Binding Notifications}" />
+                    <CheckBox Content="Let friends see when I am typing" IsChecked="{Binding SendTyping}" />
+
+                    <TextBlock Classes="section" Text="Files" />
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBox Text="{Binding DownloadDirectory}" Watermark="Download folder" />
+                        <Button Grid.Column="1" Margin="8,0,0,0" Content="Browse…" Command="{Binding BrowseDownloadsCommand}" />
+                    </Grid>
+
+                    <TextBlock Classes="section" Text="Network" />
+                    <CheckBox Content="LAN discovery (find Tox users on the local network)" IsChecked="{Binding UseLanDiscovery}" />
+                    <CheckBox Content="IPv6" IsChecked="{Binding UseIpv6}" />
+                    <TextBlock Classes="muted" TextWrapping="Wrap"
+                               Text="Extra bootstrap nodes, one per line: host port public-key. The public list from nodes.tox.chat is always used." />
+                    <TextBox Text="{Binding CustomNodes}" AcceptsReturn="True" Height="70" FontFamily="monospace" FontSize="11" />
+                    <Button Content="Save nodes" Command="{Binding SaveNodesCommand}" />
+
+                    <TextBlock Classes="section" Text="Profile" />
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+                        <Button Content="Export profile…" Command="{Binding ExportCommand}" />
+                        <Button Content="Log out" Command="{Binding Main.LogoutCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

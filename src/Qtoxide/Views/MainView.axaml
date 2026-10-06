@@ -1,0 +1,239 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Qtoxide.ViewModels"
+             xmlns:views="using:Qtoxide.Views"
+             xmlns:tox="using:Toxide"
+             x:Class="Qtoxide.Views.MainView"
+             x:DataType="vm:MainViewModel">
+    <Grid>
+        <Grid ColumnDefinitions="300,*">
+
+            <!-- ============================== sidebar -->
+            <DockPanel Background="{DynamicResource SidebarBrush}">
+                <!-- self -->
+                <Border DockPanel.Dock="Top" Padding="12" BorderBrush="#20808080" BorderThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Panel Width="44" Height="44">
+                            <Border Classes="avatar" CornerRadius="22">
+                                <Panel>
+                                    <TextBlock Text="{Binding Initials}" />
+                                    <Image Source="{Binding SelfAvatar}" Stretch="UniformToFill" IsVisible="{Binding HasSelfAvatar}" />
+                                </Panel>
+                            </Border>
+                            <Ellipse Width="12" Height="12" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                     Fill="{Binding Presence, Converter={x:Static views:Converters.PresenceBrush}}"
+                                     Stroke="{DynamicResource SidebarBrush}" StrokeThickness="2" />
+                        </Panel>
+                        <StackPanel Grid.Column="1" Margin="10,0" VerticalAlignment="Center" Spacing="2">
+                            <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Watermark="Your name"
+                                     BorderThickness="0" Background="Transparent" Padding="2" FontWeight="SemiBold" />
+                            <TextBox Text="{Binding StatusMessage, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                     Watermark="Status message" BorderThickness="0" Background="Transparent" Padding="2" FontSize="12" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <Button Classes="icon" Content="⚙" ToolTip.Tip="Settings" Command="{Binding OpenSettingsCommand}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="12,8">
+                    <ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" HorizontalAlignment="Stretch">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="tox:ToxUserStatus">
+                                <TextBlock Text="{Binding Converter={x:Static views:Converters.StatusText}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Button Grid.Column="1" Margin="8,0,0,0" Content="＋ Add" ToolTip.Tip="Add a friend"
+                            Command="{Binding OpenAddFriendCommand}" />
+                </Grid>
+
+                <TextBlock DockPanel.Dock="Top" Classes="muted" Margin="14,0,14,6" Text="{Binding ConnectionText}" />
+
+                <!-- friend requests -->
+                <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Requests}" IsVisible="{Binding HasRequests}" Margin="8,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:FriendRequestViewModel">
+                            <Border Background="#205865F2" CornerRadius="8" Padding="10" Margin="0,0,0,6">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="Friend request" FontWeight="SemiBold" />
+                                    <TextBlock Classes="muted" Text="{Binding ShortKey}" />
+                                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Right">
+                                        <Button Content="Decline" Command="{Binding RejectCommand}" />
+                                        <Button Content="Accept" Classes="accent" Command="{Binding AcceptCommand}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- friends -->
+                <ListBox ItemsSource="{Binding Friends}" SelectedItem="{Binding SelectedFriend}" Background="Transparent">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:FriendViewModel">
+                            <Grid ColumnDefinitions="Auto,*,Auto" Background="Transparent">
+                                <Grid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Remove friend" Command="{Binding RemoveCommand}" />
+                                    </ContextMenu>
+                                </Grid.ContextMenu>
+                                <Panel Width="36" Height="36">
+                                    <Border Classes="avatar" CornerRadius="18">
+                                        <Panel>
+                                            <TextBlock Text="{Binding Initials}" FontSize="13" />
+                                            <Image Source="{Binding Avatar}" Stretch="UniformToFill" IsVisible="{Binding HasAvatar}" />
+                                        </Panel>
+                                    </Border>
+                                    <Ellipse Width="11" Height="11" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                             Fill="{Binding Presence, Converter={x:Static views:Converters.PresenceBrush}}"
+                                             Stroke="{DynamicResource SidebarBrush}" StrokeThickness="2" />
+                                </Panel>
+                                <StackPanel Grid.Column="1" Margin="10,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Classes="muted" Text="{Binding PresenceText}" TextTrimming="CharacterEllipsis"
+                                               IsVisible="{Binding !IsTyping}" />
+                                    <TextBlock Classes="muted" Text="typing…" FontStyle="Italic" IsVisible="{Binding IsTyping}" />
+                                </StackPanel>
+                                <Border Grid.Column="2" Classes="badge" VerticalAlignment="Center" IsVisible="{Binding HasUnread}">
+                                    <TextBlock Text="{Binding Unread}" Foreground="White" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <!-- ============================== conversation -->
+            <Panel Grid.Column="1" Background="{DynamicResource CardBrush}">
+                <!-- nothing selected: show our Tox ID -->
+                <StackPanel IsVisible="{Binding !HasSelection}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Spacing="10" MaxWidth="520">
+                    <TextBlock Classes="title" Text="Welcome to Qtoxide" HorizontalAlignment="Center" />
+                    <TextBlock Classes="muted" TextWrapping="Wrap" TextAlignment="Center"
+                               Text="Share your Tox ID with your friends so they can add you, or add them with theirs." />
+                    <SelectableTextBlock Text="{Binding ToxId}" TextWrapping="Wrap" FontFamily="monospace" TextAlignment="Center" />
+                    <Button Content="Copy my Tox ID" HorizontalAlignment="Center" Command="{Binding CopyToxIdCommand}" />
+                </StackPanel>
+
+                <DockPanel IsVisible="{Binding HasSelection}">
+                    <!-- header -->
+                    <Border DockPanel.Dock="Top" Padding="16,10" BorderBrush="#20808080" BorderThickness="0,0,0,1">
+                        <StackPanel>
+                            <TextBlock Text="{Binding SelectedFriend.DisplayName, FallbackValue=''}" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Classes="muted" Text="{Binding SelectedFriend.PresenceText, FallbackValue=''}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- composer -->
+                    <Border DockPanel.Dock="Bottom" Padding="12" BorderBrush="#20808080" BorderThickness="0,1,0,0">
+                        <StackPanel Spacing="4">
+                            <TextBlock Classes="muted" FontStyle="Italic"
+                                       Text="{Binding SelectedFriend.DisplayName, StringFormat='{}{0} is typing…', FallbackValue=''}"
+                                       IsVisible="{Binding SelectedFriend.IsTyping, FallbackValue=False}" />
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <Button Classes="icon" Content="📎" ToolTip.Tip="Send a file" Command="{Binding SendFileCommand}"
+                                        VerticalAlignment="Bottom" />
+                                <TextBox Grid.Column="1" x:Name="Composer" Margin="6,0" AcceptsReturn="True" TextWrapping="Wrap"
+                                         MaxHeight="160" Watermark="Type a message (Enter to send, Shift+Enter for a new line)"
+                                         Text="{Binding MessageText}" />
+                                <Button Grid.Column="2" Content="Send" Classes="accent" Command="{Binding SendCommand}"
+                                        VerticalAlignment="Bottom" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- messages -->
+                    <ScrollViewer x:Name="MessagesScroll" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl Margin="16,8" ItemsSource="{Binding SelectedFriend.Messages, FallbackValue={x:Null}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:MessageViewModel">
+                                    <StackPanel HorizontalAlignment="{Binding Outgoing, Converter={x:Static views:Converters.Alignment}}">
+                                        <!-- text -->
+                                        <Border Classes="bubble" Classes.outgoing="{Binding Outgoing}" IsVisible="{Binding IsText}">
+                                            <StackPanel>
+                                                <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                                                <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
+                                                    <TextBlock Text="{Binding TimeText}" FontSize="10" Opacity="0.7" />
+                                                    <TextBlock Text="{Binding Delivered, Converter={x:Static views:Converters.DeliveredMark}}"
+                                                               FontSize="10" Opacity="0.7" IsVisible="{Binding Outgoing}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                        <!-- action -->
+                                        <TextBlock IsVisible="{Binding IsAction}" Text="{Binding ActionText}" FontStyle="Italic"
+                                                   Classes="muted" Margin="4,4" TextWrapping="Wrap" />
+                                        <!-- file -->
+                                        <Border Classes="bubble" Classes.outgoing="{Binding Outgoing}" IsVisible="{Binding IsFile}" MinWidth="280">
+                                            <StackPanel Spacing="6">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBlock Text="📄" FontSize="22" VerticalAlignment="Center" />
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding FileName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="400" />
+                                                        <TextBlock FontSize="11" Opacity="0.8">
+                                                            <Run Text="{Binding SizeText}" />
+                                                            <Run Text=" · " />
+                                                            <Run Text="{Binding StateText}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <ProgressBar Value="{Binding Progress}" Maximum="100" IsVisible="{Binding IsInProgress}" />
+                                                <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Right">
+                                                    <Button Content="Accept" Command="{Binding AcceptCommand}" IsVisible="{Binding CanAccept}" />
+                                                    <Button Content="{Binding PauseText}" Command="{Binding PauseCommand}" IsVisible="{Binding CanPause}" />
+                                                    <Button Content="Cancel" Command="{Binding CancelCommand}" IsVisible="{Binding CanCancel}" />
+                                                    <Button Content="Open" Command="{Binding OpenCommand}" IsVisible="{Binding CanOpen}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+
+                <!-- notices -->
+                <Border IsVisible="{Binding Notice, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,12" Padding="14,8" CornerRadius="8"
+                        Background="{DynamicResource CardBrush}" BoxShadow="0 4 16 0 #40000000">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="{Binding Notice}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="500" />
+                        <Button Classes="icon" Content="✕" Command="{Binding DismissNoticeCommand}" />
+                    </StackPanel>
+                </Border>
+            </Panel>
+        </Grid>
+
+        <!-- ============================== add friend overlay -->
+        <Grid Background="{DynamicResource OverlayBrush}" IsVisible="{Binding IsAddFriendOpen}">
+            <Border Classes="card" Width="520" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="title" Text="Add a friend" />
+                    <TextBox Watermark="Tox ID (76 hexadecimal characters)" Text="{Binding AddFriendId}" FontFamily="monospace" />
+                    <TextBox Watermark="Message" Text="{Binding AddFriendMessage}" AcceptsReturn="True" TextWrapping="Wrap" Height="80" />
+                    <TextBlock Classes="error" Text="{Binding AddFriendError}"
+                               IsVisible="{Binding AddFriendError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Command="{Binding CloseAddFriendCommand}" IsCancel="True" />
+                        <Button Content="Send request" Classes="accent" Command="{Binding AddFriendCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ============================== settings overlay -->
+        <Grid Background="{DynamicResource OverlayBrush}"
+              IsVisible="{Binding Settings, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <ContentControl Content="{Binding Settings}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ContentControl.ContentTemplate>
+                    <DataTemplate x:DataType="vm:SettingsViewModel">
+                        <views:SettingsView />
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
+        </Grid>
+    </Grid>
+</UserControl>

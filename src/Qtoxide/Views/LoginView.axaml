@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Qtoxide.ViewModels"
+             x:Class="Qtoxide.Views.LoginView"
+             x:DataType="vm:LoginViewModel">
+    <Grid Background="{DynamicResource SidebarBrush}">
+        <Border Classes="card" Width="420" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Spacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Border Classes="avatar" Width="48" Height="48" CornerRadius="24">
+                        <TextBlock Text="Q" FontSize="24" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Classes="title" Text="Qtoxide" />
+                        <TextBlock Classes="muted" Text="Secure peer-to-peer messaging on Tox" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Open an existing profile -->
+                <StackPanel Spacing="10" IsVisible="{Binding !IsCreating}">
+                    <TextBlock Classes="section" Text="Profile" />
+                    <ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}"
+                              HorizontalAlignment="Stretch" PlaceholderText="No profiles yet" />
+                    <TextBox PasswordChar="●" Watermark="Password"
+                             Text="{Binding Password}" IsVisible="{Binding SelectedIsEncrypted}"
+                             x:Name="PasswordBox" />
+                    <Button Content="Log in" Command="{Binding OpenCommand}" IsDefault="True"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Classes="accent" />
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                        <Button Content="New profile" Command="{Binding ShowCreateCommand}" />
+                        <Button Content="Import…" Command="{Binding ImportCommand}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Create a profile -->
+                <StackPanel Spacing="10" IsVisible="{Binding IsCreating}">
+                    <TextBlock Classes="section" Text="New profile" />
+                    <TextBox Watermark="Profile name (also your Tox nickname)" Text="{Binding NewName}" />
+                    <TextBox PasswordChar="●" Watermark="Password (optional, encrypts the profile)" Text="{Binding NewPassword}" />
+                    <TextBox PasswordChar="●" Watermark="Repeat password" Text="{Binding NewPasswordConfirm}" />
+                    <TextBlock Classes="muted" TextWrapping="Wrap"
+                               Text="Without a password, anyone with access to this computer can read your profile and chats. A forgotten password cannot be recovered." />
+                    <Button Content="Create profile" Command="{Binding CreateCommand}" IsDefault="True"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Classes="accent" />
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                        <Button Content="Back" Command="{Binding ShowOpenCommand}" IsVisible="{Binding HasProfiles}" />
+                        <Button Content="Import…" Command="{Binding ImportCommand}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+                <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

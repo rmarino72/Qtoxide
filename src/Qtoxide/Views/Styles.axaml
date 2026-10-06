@@ -1,0 +1,89 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="SidebarBrush" Color="#F2F3F5" />
+                    <SolidColorBrush x:Key="IncomingBubbleBrush" Color="#E3E5E8" />
+                    <SolidColorBrush x:Key="OverlayBrush" Color="#80000000" />
+                    <SolidColorBrush x:Key="CardBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="MutedBrush" Color="#5C5E66" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="SidebarBrush" Color="#2B2D31" />
+                    <SolidColorBrush x:Key="IncomingBubbleBrush" Color="#383A40" />
+                    <SolidColorBrush x:Key="OverlayBrush" Color="#A0000000" />
+                    <SolidColorBrush x:Key="CardBrush" Color="#313338" />
+                    <SolidColorBrush x:Key="MutedBrush" Color="#B5BAC1" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+            <SolidColorBrush x:Key="AccentBrush" Color="#5865F2" />
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.section">
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,12,0,4" />
+    </Style>
+    <Style Selector="TextBlock.error">
+        <Setter Property="Foreground" Value="#ED4245" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="24" />
+        <Setter Property="BoxShadow" Value="0 8 32 0 #40000000" />
+    </Style>
+
+    <!-- Avatars: a circle with initials, covered by the image when there is one. -->
+    <Style Selector="Border.avatar">
+        <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+        <Setter Property="ClipToBounds" Value="True" />
+    </Style>
+    <Style Selector="Border.avatar TextBlock">
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="Border.bubble">
+        <Setter Property="Background" Value="{DynamicResource IncomingBubbleBrush}" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="Margin" Value="0,2" />
+        <Setter Property="MaxWidth" Value="560" />
+    </Style>
+    <Style Selector="Border.bubble.outgoing">
+        <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+    </Style>
+    <Style Selector="Border.bubble.outgoing TextBlock, Border.bubble.outgoing SelectableTextBlock">
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <Style Selector="Border.badge">
+        <Setter Property="Background" Value="#ED4245" />
+        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="MinWidth" Value="18" />
+        <Setter Property="Height" Value="18" />
+        <Setter Property="Padding" Value="5,0" />
+    </Style>
+
+    <Style Selector="Button.icon">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+</Styles>
