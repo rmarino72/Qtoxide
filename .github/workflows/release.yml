@@ -1,0 +1,115 @@
+name: Release
+
+# Push a tag like v0.1.0 to build Qtoxide for every platform, start each build on a real machine,
+# and publish a GitHub Release with the downloads.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch: # manual dry run: builds and smoke-tests, publishes nothing
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet test -c Release
+
+  package:
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - { rid: win-x64, os: ubuntu-latest }
+          - { rid: win-arm64, os: ubuntu-latest }
+          - { rid: linux-x64, os: ubuntu-latest }
+          - { rid: linux-arm64, os: ubuntu-latest }
+          - { rid: osx-arm64, os: macos-latest }  # macOS builds are signed, which needs macOS
+          - { rid: osx-x64, os: macos-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"; else echo "VERSION=0.0.0-dev" >> "$GITHUB_ENV"; fi
+      - run: build/package.sh "$VERSION" ${{ matrix.rid }}
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.rid }}
+          path: dist/*
+
+  smoke:
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { rid: win-x64, os: windows-latest, required: true }
+          - { rid: linux-x64, os: ubuntu-latest, required: true }
+          - { rid: osx-arm64, os: macos-latest, required: true }
+          - { rid: win-arm64, os: windows-11-arm, required: false }
+          - { rid: linux-arm64, os: ubuntu-24.04-arm, required: false }
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ !matrix.required }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.rid }}
+          path: dist
+      - name: Start the Windows build
+        if: startsWith(matrix.rid, 'win')
+        shell: pwsh
+        run: |
+          Expand-Archive dist/*.zip -DestinationPath app
+          $env:QTOXIDE_HOME = Join-Path $env:RUNNER_TEMP 'qtoxide'
+          $p = Start-Process -FilePath app/Qtoxide/Qtoxide.exe -PassThru
+          Start-Sleep -Seconds 15
+          if ($p.HasExited) { throw "Qtoxide exited with code $($p.ExitCode)" }
+          Stop-Process -Id $p.Id
+          if (-not (Test-Path "$env:QTOXIDE_HOME/profiles")) { throw 'data folder not created' }
+          'Qtoxide is running'
+      - name: Start the Linux build
+        if: startsWith(matrix.rid, 'linux')
+        run: |
+          sudo apt-get update && sudo apt-get install -y xvfb libice6 libsm6 libfontconfig1
+          mkdir app && tar -C app -xzf dist/*.tar.gz
+          xvfb-run -a build/smoke-test.sh app/*/Qtoxide
+      - name: Start the macOS build
+        if: startsWith(matrix.rid, 'osx')
+        run: |
+          ditto -x -k dist/*.zip app
+          codesign -v app/Qtoxide.app
+          build/smoke-test.sh app/Qtoxide.app/Contents/MacOS/Qtoxide
+
+  release:
+    needs: smoke
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          (cd dist && sha256sum * > SHA256SUMS.txt)
+          sed "s/@VERSION@/$version/g" build/release-notes.md > notes.md
+          gh release create "$GITHUB_REF_NAME" dist/* --title "Qtoxide $version" --notes-file notes.md

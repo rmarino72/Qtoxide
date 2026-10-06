@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Qtoxide
+GenericName=Tox Messenger
+Comment=Secure peer-to-peer messaging on the Tox network
+Exec=Qtoxide
+Icon=qtoxide
+Terminal=false
+Categories=Network;InstantMessaging;Chat;
+Keywords=tox;chat;messenger;p2p;encryption;
+MimeType=x-scheme-handler/tox;

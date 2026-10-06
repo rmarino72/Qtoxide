@@ -5,3 +5,7 @@ obj/
 .vs/
 *.DotSettings.user
 /screenshots/
+
+# release packaging (build/package.sh)
+artifacts/
+dist/

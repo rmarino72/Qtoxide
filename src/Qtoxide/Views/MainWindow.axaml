@@ -6,7 +6,8 @@
         x:DataType="vm:MainWindowViewModel"
         Title="{Binding Title}"
         Width="1100" Height="720" MinWidth="760" MinHeight="480"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Icon="/Assets/qtoxide.ico">
     <Window.DataTemplates>
         <DataTemplate DataType="vm:LoginViewModel">
             <views:LoginView />

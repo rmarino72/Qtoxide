@@ -12,6 +12,19 @@
         <AssemblyName>Qtoxide</AssemblyName>
         <Version>0.1.0</Version>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ApplicationIcon>Assets\qtoxide.ico</ApplicationIcon>
+        <Product>Qtoxide</Product>
+        <Company>Rosario Marino</Company>
+        <Copyright>Copyright © 2026 Rosario Marino</Copyright>
+    </PropertyGroup>
+
+    <!-- Release builds for a runtime (dotnet publish -r <rid>): one self-contained executable, no .NET install needed. -->
+    <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+        <SelfContained>true</SelfContained>
+        <PublishSingleFile>true</PublishSingleFile>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+        <DebugType>none</DebugType>
     </PropertyGroup>
 
     <ItemGroup>

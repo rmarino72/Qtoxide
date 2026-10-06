@@ -13,6 +13,21 @@ toxcore-based client.
   <img src="docs/screenshots/settings-Light.png" width="32%" alt="Settings" />
 </p>
 
+## Download
+
+Get the latest version from the **[Releases page](https://github.com/rmarino72/Qtoxide/releases/latest)**:
+
+| Platform | Download |
+|---|---|
+| Windows 10/11 | `win-x64.zip` (ARM: `win-arm64.zip`) |
+| macOS 12+ | `osx-arm64.zip` for Apple Silicon, `osx-x64.zip` for Intel |
+| Linux | `linux-x64.tar.gz` (ARM64: `linux-arm64.tar.gz`) |
+
+Each package is self-contained: no .NET installation needed. The builds are not code-signed by
+Microsoft or notarized by Apple, so the first start needs one extra click: on Windows
+*More info → Run anyway*; on macOS *System Settings → Privacy & Security → Open Anyway*. On Linux,
+run `./install.sh` from the extracted folder to add Qtoxide to the applications menu.
+
 ## Features
 
 - **Profiles**: create several, protect them with a password (profile *and* chat history are
@@ -41,6 +56,12 @@ Data lives in `%LOCALAPPDATA%\Qtoxide`, `~/Library/Application Support/Qtoxide` 
 `~/.local/share/Qtoxide` (set `QTOXIDE_HOME` to use another folder, e.g. a portable install).
 Each profile is a qTox-compatible `profiles/<name>.tox` file, with `<name>.history`,
 `<name>.settings.json` and `<name>.avatars/` next to it.
+
+## Packaging
+
+`build/package.sh <version> <rid>` builds one downloadable package into `dist/` (see the script for
+the runtimes). Pushing a tag `vX.Y.Z` runs `.github/workflows/release.yml`, which tests, packages every
+platform, starts each package on a real Windows, Linux and macOS machine, and publishes the release.
 
 ## Tests
 
